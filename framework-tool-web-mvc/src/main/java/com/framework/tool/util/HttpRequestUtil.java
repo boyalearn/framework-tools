@@ -2,11 +2,13 @@ package com.framework.tool.util;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
+import java.util.Map;
 
 public final class HttpRequestUtil {
 
     public static Object getParameterByHttpRequest(String key, HttpServletRequest request) {
         Enumeration<String> headerNames = request.getHeaderNames();
+
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             if(key.equals(headerName)) {
@@ -21,6 +23,7 @@ public final class HttpRequestUtil {
                 return request.getParameter(parameterName);
             }
         }
+
         return null;
     }
 }

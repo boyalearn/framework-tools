@@ -43,6 +43,7 @@ public class WebHandlerMethodArgumentResolver implements HandlerMethodArgumentRe
         ParameterDefinition parameterDefinition = PARAMETER_DEFINITION.get(method);
         if (null == parameterDefinition) {
             parameterDefinition = resolveParameterDefinition(method, methodParameter);
+            PARAMETER_DEFINITION.put(method, parameterDefinition);
         }
 
         return buildParameterByParameterDefinition(parameterDefinition, request);

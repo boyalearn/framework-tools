@@ -5,11 +5,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
-public class WebMvcConfigurerAdapter implements WebMvcConfigurer {
+public class ArgumentResolversMvcConfigurerAdapter implements WebMvcConfigurer {
 
     private HandlerMethodArgumentResolver handlerMethodArgumentResolver;
 
-    public WebMvcConfigurerAdapter(HandlerMethodArgumentResolver handlerMethodArgumentResolver) {
+
+    public ArgumentResolversMvcConfigurerAdapter(HandlerMethodArgumentResolver handlerMethodArgumentResolver) {
         this.handlerMethodArgumentResolver = handlerMethodArgumentResolver;
     }
 
