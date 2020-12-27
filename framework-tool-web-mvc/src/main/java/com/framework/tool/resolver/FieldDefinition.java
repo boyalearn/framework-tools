@@ -17,10 +17,6 @@ public class FieldDefinition {
 
     private ClassDecorator setParameterType;
 
-    private Method getMethod;
-
-    private ClassDecorator getParameterType;
-
     public void invokeSetMethod(Object object, Object parameter) throws InvocationTargetException, IllegalAccessException {
         setMethod.invoke(object, setParameterType.cast(parameter));
     }
