@@ -3,7 +3,8 @@ package com.framework.tool.annotation;
 import java.lang.annotation.*;
 
 @Documented
-@Target(ElementType.PARAMETER)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestJson {
+public @interface ExcludeParameter {
+    String[] value();
 }
