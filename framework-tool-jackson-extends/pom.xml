@@ -12,8 +12,6 @@
     <artifactId>framework-tool-jackson-extends</artifactId>
 
     <dependencies>
-
-
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -27,6 +25,8 @@
         <dependency>
             <groupId>com.tools</groupId>
             <artifactId>framework-tool-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
