@@ -57,6 +57,18 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.databind.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.tools</groupId>
+                <artifactId>framework-tool-common</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tools</groupId>
+                <artifactId>framework-tool-jackson-extends</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
