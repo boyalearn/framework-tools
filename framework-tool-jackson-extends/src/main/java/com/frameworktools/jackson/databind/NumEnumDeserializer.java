@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.frameworktools.jackson.databind.enums.IEnum;
+import com.frameworktool.basetype.IEnum;
 import com.frameworktools.jackson.utils.StringUtils;
 
 import java.io.IOException;

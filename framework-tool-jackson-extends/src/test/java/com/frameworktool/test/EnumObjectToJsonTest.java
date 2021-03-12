@@ -4,11 +4,11 @@ package com.frameworktool.test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.frameworktool.basetype.IEnum;
 import com.frameworktool.test.entity.EnumBean;
 import com.frameworktool.test.enums.TypeEnum;
 import com.frameworktools.jackson.databind.NumEnumDeserializer;
 import com.frameworktools.jackson.databind.NumEnumSerializer;
-import com.frameworktools.jackson.databind.enums.IEnum;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,6 +1,7 @@
 package com.frameworktool.test.enums;
 
-import com.frameworktools.jackson.databind.enums.IEnum;
+
+import com.frameworktool.basetype.IEnum;
 
 public enum TypeEnum implements IEnum<TypeEnum> {
 

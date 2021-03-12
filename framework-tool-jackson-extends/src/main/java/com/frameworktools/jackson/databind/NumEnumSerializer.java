@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
-import com.frameworktools.jackson.databind.enums.IEnum;
+import com.frameworktool.basetype.IEnum;
 
 import java.io.IOException;
 
