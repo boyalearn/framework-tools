@@ -6,4 +6,6 @@ import lombok.Data;
 @Data
 public class EnumEntity {
     private TypeEnum type;
+
+    private String name;
 }

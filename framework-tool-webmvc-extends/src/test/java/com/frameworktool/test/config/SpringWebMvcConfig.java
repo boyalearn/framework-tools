@@ -7,8 +7,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.frameworktool.basetype.IEnum;
 import com.frameworktool.webmvc.converter.NumberEnumConverterFactory;
+import com.frameworktool.webmvc.filter.GlobalFilter;
 import com.frameworktools.jackson.databind.NumEnumDeserializer;
 import com.frameworktools.jackson.databind.NumEnumSerializer;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -53,5 +56,13 @@ public class SpringWebMvcConfig implements WebMvcConfigurer {
         simpleModule.addDeserializer(Enum.class, new NumEnumDeserializer(Enum.class));
         objectMapper.registerModule(simpleModule);
         return objectMapper;
+    }
+
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean() {
+        FilterRegistrationBean bean = new FilterRegistrationBean();
+        bean.setFilter(new GlobalFilter());
+        bean.addUrlPatterns("/*");
+        return bean;
     }
 }
