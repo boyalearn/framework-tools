@@ -20,7 +20,7 @@ public class DemoController {
     }
 
     @PostMapping("/index")
-    public RespResult postIndex(@RequestBody EnumEntity enumEntity, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public RespResult postIndex(@RequestBody(required = false) EnumEntity enumEntity, HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (StringUtils.isEmpty(enumEntity.getName())) {
             throw new Exception("this is a exception");
         }

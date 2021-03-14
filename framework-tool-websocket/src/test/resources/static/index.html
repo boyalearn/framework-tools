@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+
+<script>
+    var ws=new WebSocket("ws://localhost:8080/ws");
+
+    ws.onopen = function() {
+        this.send("{\"optType\":\"loadMap\"}");
+    };
+
+    ws.onmessage = function(evt) {
+        netWorkChange(evt);
+    };
+
+    ws.onclose = function() {
+        console.log("onclose")
+    };
+</script>
+</html>

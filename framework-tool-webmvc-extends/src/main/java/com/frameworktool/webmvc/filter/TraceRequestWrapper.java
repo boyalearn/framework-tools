@@ -1,5 +1,7 @@
 package com.frameworktool.webmvc.filter;
 
+import org.springframework.util.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TraceRequestWrapper {
+
+    private static final String URL_CONN_SYMBOL = "?";
+
     private HttpServletRequest request;
 
     public TraceRequestWrapper(HttpServletRequest request) {
@@ -34,21 +39,15 @@ public class TraceRequestWrapper {
             String keyName = attributeNames.nextElement();
             body.put(keyName, request.getHeader(keyName));
         }
-        if (body.size() > 0) {
-            return body;
-        }
 
         Map<String, String[]> parameterMap = request.getParameterMap();
         if (parameterMap.size() > 0) {
             Enumeration<String> parameterNames = request.getParameterNames();
-            while (parameterNames.hasMoreElements()){
-                String keyName=parameterNames.nextElement();
+            while (parameterNames.hasMoreElements()) {
+                String keyName = parameterNames.nextElement();
                 body.put(keyName, request.getParameter(keyName));
             }
-            return body;
         }
-
-
 
 
         try {
@@ -64,5 +63,13 @@ public class TraceRequestWrapper {
         }
 
         return body;
+    }
+
+    public String getRequestURL() {
+        String queryString = request.getQueryString();
+        if (StringUtils.isEmpty(queryString)) {
+            return request.getRequestURL().toString();
+        }
+        return request.getRequestURL().append(URL_CONN_SYMBOL + queryString).toString();
     }
 }

@@ -47,6 +47,9 @@ public class GlobalFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 
         TraceRequestWrapper traceRequestWrapper = new TraceRequestWrapper((HttpServletRequest) servletRequest);
+
+        System.out.println(traceRequestWrapper.getRequestURL());
+
         System.out.println(traceRequestWrapper.getHeader());
         System.out.println(traceRequestWrapper.getBody());
 
