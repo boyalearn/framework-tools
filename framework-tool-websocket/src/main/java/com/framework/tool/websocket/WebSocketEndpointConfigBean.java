@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WebSocketEndpointConfigBean extends ServerEndpointConfig.Configurator implements ServerEndpointConfig {
+public class WebSocketEndpointConfigBean implements ServerEndpointConfig {
 
     private Endpoint endpoint;
 
@@ -26,10 +26,16 @@ public class WebSocketEndpointConfigBean extends ServerEndpointConfig.Configurat
 
     private final Map<String, Object> userProperties = new HashMap<>(4);
 
+    private ServerEndpointConfig.Configurator configurator;
+
 
     public WebSocketEndpointConfigBean(String path, Endpoint endpoint) {
         this.endpoint = endpoint;
         this.path = path;
+    }
+
+    public void setConfigurator(ServerEndpointConfig.Configurator configurator) {
+        this.configurator = configurator;
     }
 
     @Override
@@ -54,7 +60,7 @@ public class WebSocketEndpointConfigBean extends ServerEndpointConfig.Configurat
 
     @Override
     public Configurator getConfigurator() {
-        return this;
+        return configurator;
     }
 
     @Override
@@ -71,4 +77,5 @@ public class WebSocketEndpointConfigBean extends ServerEndpointConfig.Configurat
     public Map<String, Object> getUserProperties() {
         return userProperties;
     }
+
 }
