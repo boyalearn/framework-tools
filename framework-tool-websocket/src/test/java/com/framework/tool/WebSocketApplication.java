@@ -1,6 +1,7 @@
 package com.framework.tool;
 
 import com.framework.tool.config.HttpSessionConfigurator;
+import com.framework.tool.config.WsAuthFilter;
 import com.framework.tool.websocket.endpoint.DefaultEndpoint;
 import com.framework.tool.websocket.WebSocketEndpointConfigBean;
 import com.framework.tool.websocket.WebSocketEndpointExporter;
@@ -20,30 +21,20 @@ public class WebSocketApplication {
         SpringApplication.run(WebSocketApplication.class, args);
     }
 
+
     @Bean
-    public WebSocketEndpointExporter webSocketEndpointExporter() {
+    public WebSocketEndpointExporter webSocketEndpointExporter(){
         return new WebSocketEndpointExporter();
     }
+
 
     @Bean
     public WebSocketEndpointConfigBean webSocketEndpointConfigBean(){
         WebSocketEndpointConfigBean webSocketEndpointConfigBean = new WebSocketEndpointConfigBean("/ws",new DefaultEndpoint());
 
         webSocketEndpointConfigBean.setConfigurator(new HttpSessionConfigurator());
+        webSocketEndpointConfigBean.setFilter(new WsAuthFilter());
         return webSocketEndpointConfigBean;
     }
 
-    @Bean
-    public FilterRegistrationBean filterRegistrationBean() {
-        FilterRegistrationBean bean = new FilterRegistrationBean();
-        bean.setFilter(new Filter() {
-            @Override
-            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-                ((HttpServletRequest)request).getSession();
-                chain.doFilter(request,response);
-            }
-        });
-        bean.addUrlPatterns("/*");
-        return bean;
-    }
 }

@@ -1,16 +1,25 @@
 package com.framework.tool.websocket.endpoint;
 
 import javax.servlet.http.HttpSession;
-import javax.websocket.Endpoint;
-import javax.websocket.EndpointConfig;
-import javax.websocket.MessageHandler;
-import javax.websocket.Session;
+import javax.websocket.*;
+import java.io.IOException;
 
 public class DefaultEndpoint extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        HttpSession httpSession = (HttpSession)endpointConfig.getUserProperties().get(HttpSession.class.getName());
-        System.out.println(httpSession.getId());
+        try {
+            CloseReason closeReason=new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY,"auth error");
+            session.close(closeReason);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(true){
+            try {
+                session.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String s) {

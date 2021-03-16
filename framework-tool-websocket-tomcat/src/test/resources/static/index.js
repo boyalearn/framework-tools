@@ -1,4 +1,4 @@
-var ws=new WebSocket("ws://localhost:8080/ws/con?name=sdfsdf&age=18",);
+var ws=new WebSocket("ws://localhost:8080/ws/index?name=sdfsdf&age=18",);
 
 ws.onopen = function() {
     this.send("{\"optType\":\"loadMap\"}");

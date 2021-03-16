@@ -1,5 +1,13 @@
 package com.framework.tool.websocket;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.util.Assert;
+
+import javax.servlet.Filter;
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;
 import javax.websocket.Endpoint;
@@ -10,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WebSocketEndpointConfigBean implements ServerEndpointConfig {
+public class WebSocketEndpointConfigBean implements ServerEndpointConfig, BeanFactoryAware {
 
     private Endpoint endpoint;
 
@@ -28,15 +36,26 @@ public class WebSocketEndpointConfigBean implements ServerEndpointConfig {
 
     private ServerEndpointConfig.Configurator configurator;
 
+    private Filter filter;
+
 
     public WebSocketEndpointConfigBean(String path, Endpoint endpoint) {
         this.endpoint = endpoint;
         this.path = path;
+        subProtocols.add("token");
     }
+
 
     public void setConfigurator(ServerEndpointConfig.Configurator configurator) {
         this.configurator = configurator;
     }
+
+
+    public void setFilter(Filter filter) {
+        Assert.notNull(filter, "Filter must not be null");
+        this.filter = filter;
+    }
+
 
     @Override
     public Class<?> getEndpointClass() {
@@ -78,4 +97,13 @@ public class WebSocketEndpointConfigBean implements ServerEndpointConfig {
         return userProperties;
     }
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        if (null != filter) {
+            FilterRegistrationBean bean = new FilterRegistrationBean();
+            bean.setFilter(filter);
+            bean.addUrlPatterns(path);
+            ((DefaultListableBeanFactory) beanFactory).registerSingleton("webFilterRegistrationBean", bean);
+        }
+    }
 }
