@@ -1,10 +1,12 @@
 package com.framework.websocket;
 
-import com.framework.websocket.configurator.HttpConfigurator;
+import com.framework.websocket.annotation.EndpointPath;
 import com.framework.websocket.context.ChannelContext;
 import com.framework.websocket.exception.ConnectionException;
+import com.framework.websocket.handler.CommandHandler;
 import com.framework.websocket.handler.ConnectionHandler;
 import com.framework.websocket.handler.ErrorHandler;
+import com.framework.websocket.session.DefaultSessionManager;
 import com.framework.websocket.session.SessionManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -27,16 +29,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@ServerEndpoint(value = "/ws", configurator = HttpConfigurator.class)
 public class DefaultWebSocketServer implements ApplicationContextAware, InitializingBean {
 
-    private ConnectionHandler connectionHandler;
+    protected ConnectionHandler connectionHandler;
 
-    private SessionManager sessionManager;
+    private SessionManager sessionManager = new DefaultSessionManager();
 
     private ErrorHandler errorHandler;
 
-    private ApplicationContext applicationContext;
+    private List<CommandHandler> commandHandlers = new ArrayList<>();
+
+    private static ApplicationContext applicationContext;
+
+    public DefaultWebSocketServer() {
+        try {
+            if (null != applicationContext) {
+                this.afterPropertiesSet();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -63,6 +76,9 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
     @OnMessage
     public void onMessage(Session session, String message) {
         log.info("收到来自窗口:{}", message);
+        for (CommandHandler commandHandler : commandHandlers) {
+            commandHandler.handle(session, message);
+        }
     }
 
     @OnError
@@ -85,14 +101,44 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
         if (StringUtils.isEmpty(path)) {
             throw new Exception("@ServerEndpoint must have a path value");
         }
+
         String[] connectionHandlerNames = applicationContext.getBeanNamesForType(ConnectionHandler.class);
-
         List<ConnectionHandler> connectionHandles = new ArrayList<>();
-
         for (String connectionHandlerName : connectionHandlerNames) {
             ConnectionHandler connectionHandler = (ConnectionHandler) applicationContext.getBean(connectionHandlerName);
+            EndpointPath endpointPath = connectionHandler.getClass().getAnnotation(EndpointPath.class);
+            if (path.equals(endpointPath.value())) {
+                connectionHandles.add(connectionHandler);
+            }
+        }
+        if (connectionHandles.size() == 1) {
+            this.connectionHandler = connectionHandles.get(0);
+        } else {
+            throw new Exception("ConnectionHandler for " + path + " path too match or no have");
         }
 
+        String[] commandHandlerNames = applicationContext.getBeanNamesForType(CommandHandler.class);
+        for (String commandHandlerName : commandHandlerNames) {
+            CommandHandler commandHandler = (CommandHandler) applicationContext.getBean(commandHandlerName);
+            EndpointPath endpointPath = connectionHandler.getClass().getAnnotation(EndpointPath.class);
+            if (path.equals(endpointPath.value())) {
+                this.commandHandlers.add(commandHandler);
+            }
+        }
 
+        String[] errorHandlerNames = applicationContext.getBeanNamesForType(ErrorHandler.class);
+        List<ErrorHandler> errorHandles = new ArrayList<>();
+        for (String errorHandlerName : errorHandlerNames) {
+            ErrorHandler errorHandler = (ErrorHandler) applicationContext.getBean(errorHandlerName);
+            EndpointPath endpointPath = connectionHandler.getClass().getAnnotation(EndpointPath.class);
+            if (path.equals(endpointPath.value())) {
+                errorHandles.add(errorHandler);
+            }
+        }
+        if (errorHandles.size() == 1) {
+            this.errorHandler = errorHandles.get(0);
+        } else {
+            throw new Exception("ErrorHandler for " + path + " path too match or no have");
+        }
     }
 }
