@@ -21,6 +21,7 @@
         <module>framework-tool-common</module>
         <module>framework-tool-websocket</module>
         <module>framework-tool-websocket-tomcat</module>
+        <module>framework-tool-elasticsearch</module>
     </modules>
 
 
