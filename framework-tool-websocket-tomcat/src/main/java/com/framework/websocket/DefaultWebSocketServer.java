@@ -1,18 +1,23 @@
 package com.framework.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.framework.websocket.annotation.CmdName;
 import com.framework.websocket.annotation.EndpointPath;
 import com.framework.websocket.context.ChannelContext;
 import com.framework.websocket.exception.ConnectionException;
 import com.framework.websocket.handler.CommandHandler;
+import com.framework.websocket.handler.CommandParser;
 import com.framework.websocket.handler.ConnectionHandler;
 import com.framework.websocket.handler.ErrorHandler;
 import com.framework.websocket.session.DefaultSessionManager;
 import com.framework.websocket.session.SessionManager;
+import com.framework.websocket.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import javax.websocket.CloseReason;
@@ -27,19 +32,23 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class DefaultWebSocketServer implements ApplicationContextAware, InitializingBean {
 
-    private ConnectionHandler connectionHandler;
-
     public static SessionManager sessionManager = new DefaultSessionManager();
 
-    private ErrorHandler errorHandler;
-
-    private List<CommandHandler> commandHandlers = new ArrayList<>();
-
     private static ApplicationContext applicationContext;
+
+    private static Map<String, CommandHandler> commandMap = new ConcurrentReferenceHashMap<>();
+
+    private static ConnectionHandler connectionHandler;
+
+    private static CommandParser commandParser;
+
+
+    private ErrorHandler errorHandler;
 
     public DefaultWebSocketServer() {
         try {
@@ -75,10 +84,18 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
 
     @OnMessage
     public void onMessage(Session session, String message) {
-        log.debug("收到来自窗口:{}", message);
-        for (CommandHandler commandHandler : commandHandlers) {
-            commandHandler.handle(session, message);
+        log.info("收到来自窗口:{}", message);
+        String cmd = "";
+        try {
+            cmd = commandParser.parse(JsonUtils.jsonToMessage(message));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Json Processing Exception");
         }
+        CommandHandler handler = commandMap.get(cmd);
+        if (null == handler) {
+            throw new RuntimeException("no cmd handler");
+        }
+        handler.handle(session, message);
     }
 
     @OnError
@@ -120,9 +137,10 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
         String[] commandHandlerNames = applicationContext.getBeanNamesForType(CommandHandler.class);
         for (String commandHandlerName : commandHandlerNames) {
             CommandHandler commandHandler = (CommandHandler) applicationContext.getBean(commandHandlerName);
-            EndpointPath endpointPath = connectionHandler.getClass().getAnnotation(EndpointPath.class);
+            EndpointPath endpointPath = commandHandler.getClass().getAnnotation(EndpointPath.class);
             if (path.equals(endpointPath.value())) {
-                this.commandHandlers.add(commandHandler);
+                CmdName cmd = commandHandler.getClass().getAnnotation(CmdName.class);
+                commandMap.put(cmd.value(), commandHandler);
             }
         }
 
@@ -139,6 +157,21 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
             this.errorHandler = errorHandles.get(0);
         } else {
             throw new Exception("ErrorHandler for " + path + " path too match or no have");
+        }
+
+        String[] CommandParserNames = applicationContext.getBeanNamesForType(CommandParser.class);
+        List<CommandParser> commandParsers = new ArrayList<>();
+        for (String CommandParserName : CommandParserNames) {
+            CommandParser CommandParser = (CommandParser) applicationContext.getBean(CommandParserName);
+            EndpointPath endpointPath = CommandParser.getClass().getAnnotation(EndpointPath.class);
+            if (path.equals(endpointPath.value())) {
+                commandParsers.add(CommandParser);
+            }
+        }
+        if (commandParsers.size() == 1) {
+            this.commandParser = commandParsers.get(0);
+        } else {
+            throw new Exception("CommandParser for " + path + " path too match or no have");
         }
     }
 }

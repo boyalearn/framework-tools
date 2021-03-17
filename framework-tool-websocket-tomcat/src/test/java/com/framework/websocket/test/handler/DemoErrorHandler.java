@@ -11,6 +11,6 @@ import javax.websocket.Session;
 public class DemoErrorHandler implements ErrorHandler {
     @Override
     public void handlingException(Session session, Throwable error) {
-
+        error.printStackTrace();
     }
 }

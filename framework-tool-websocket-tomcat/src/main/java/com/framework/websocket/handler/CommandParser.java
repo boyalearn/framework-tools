@@ -1,5 +1,7 @@
 package com.framework.websocket.handler;
 
+import com.framework.websocket.message.Message;
+
 public interface CommandParser {
-    Command parse(Object message);
+    String parse(Message message);
 }

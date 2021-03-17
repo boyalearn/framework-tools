@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 
 import javax.websocket.Session;
 
-@EndpointPath("ws")
+@EndpointPath("/ws")
 @Component
 @CmdName(Command.RPC_CALL)
 public class DemoCommandHandler implements CommandHandler {
     @Override
     public void handle(Session session, String message) {
-        System.out.println(session);
+        System.out.println(message);
     }
 }
