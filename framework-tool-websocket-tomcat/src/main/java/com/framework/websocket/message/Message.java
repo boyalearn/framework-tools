@@ -5,10 +5,10 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class Message {
+public class Message<T> {
 
     private String command;
 
-    private Object body;
+    private T body;
 
 }
