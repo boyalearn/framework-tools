@@ -31,9 +31,9 @@ import java.util.List;
 @Slf4j
 public class DefaultWebSocketServer implements ApplicationContextAware, InitializingBean {
 
-    protected ConnectionHandler connectionHandler;
+    private ConnectionHandler connectionHandler;
 
-    private SessionManager sessionManager = new DefaultSessionManager();
+    public static SessionManager sessionManager = new DefaultSessionManager();
 
     private ErrorHandler errorHandler;
 
@@ -75,7 +75,7 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
 
     @OnMessage
     public void onMessage(Session session, String message) {
-        log.info("收到来自窗口:{}", message);
+        log.debug("收到来自窗口:{}", message);
         for (CommandHandler commandHandler : commandHandlers) {
             commandHandler.handle(session, message);
         }
