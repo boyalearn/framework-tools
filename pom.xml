@@ -22,6 +22,8 @@
         <module>framework-tool-websocket</module>
         <module>framework-tool-websocket-tomcat</module>
         <module>framework-tool-elasticsearch</module>
+        <module>database-tools</module>
+        <module>http-client-tools</module>
     </modules>
 
 

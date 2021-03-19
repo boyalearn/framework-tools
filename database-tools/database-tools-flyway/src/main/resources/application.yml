@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: rpa-controller
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/tools-database?useUnicode=true&serverTimezone=UTC
+    username: root
+    password: 123456
+
+flyway:
+  baseline-on-migrate: true
