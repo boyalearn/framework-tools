@@ -20,7 +20,6 @@
         <module>framework-tool-mybatis-extends</module>
         <module>framework-tool-common</module>
         <module>framework-tool-websocket</module>
-        <module>framework-tool-websocket-tomcat</module>
         <module>framework-tool-elasticsearch</module>
         <module>framework-tool-oauth</module>
         <module>framework-tool-database</module>

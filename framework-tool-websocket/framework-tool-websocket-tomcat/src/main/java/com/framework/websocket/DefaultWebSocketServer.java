@@ -83,7 +83,7 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
     }
 
     @OnMessage
-    public void onMessage(Session session, String message) {
+    public void onMessage(Session session, String message) throws Exception {
         log.info("收到来自窗口:{}", message);
         String cmd = "";
         try {
