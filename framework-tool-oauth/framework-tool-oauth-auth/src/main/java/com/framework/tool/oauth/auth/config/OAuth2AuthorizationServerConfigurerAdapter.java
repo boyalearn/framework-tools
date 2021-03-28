@@ -63,7 +63,7 @@ public class OAuth2AuthorizationServerConfigurerAdapter extends AuthorizationSer
                 .withClient("c1")
                 .secret(passwordEncoder.encode("123"))
                 .redirectUris("/home")
-                .authorizedGrantTypes("authorization_code", "refresh_token", "password", "implicit","client_credentials")
+                .authorizedGrantTypes("authorization_code", "password", "implicit","client_credentials")
                 .scopes("all");
     }
 
