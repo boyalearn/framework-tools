@@ -2,3 +2,12 @@
 /framework-tools.iml
 /.idea/
 /framework-tool-jackson-extends/target/
+/database-tools/database-tools-flyway/database-tools-flyway.iml
+/database-tools/database-tools.iml
+/framework-tool-common/framework-tool-common.iml
+/framework-tool-elasticsearch/framework-tool-elasticsearch.iml
+/framework-tool-jackson-extends/framework-tool-jackson-extends.iml
+/framework-tool-mybatis-extends/framework-tool-mybatis-extends.iml
+/framework-tool-oauth/framework-tool-oauth.iml
+/framework-tool-common/target/
+/framework-tool-mybatis-extends/target/
