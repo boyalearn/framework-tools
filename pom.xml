@@ -23,6 +23,8 @@
         <module>framework-tool-websocket-tomcat</module>
         <module>framework-tool-elasticsearch</module>
         <module>framework-tool-oauth</module>
+        <module>database-tools</module>
+        <module>http-client-tools</module>
     </modules>
 
 

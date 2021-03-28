@@ -1,15 +1,17 @@
-package com.framework.tool.oauth.config;
+package com.framework.tool.oauth.auth.oauth;
 
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Setter
 public class CustomerUserDetails implements UserDetails {
 
-    private String password="sdfsdf";
+    private String password;
 
-    private String username="xiaoming";
+    private String username;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -28,21 +30,21 @@ public class CustomerUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

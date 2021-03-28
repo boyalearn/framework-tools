@@ -1,45 +1,53 @@
 package com.framework.tool.oauth.config;
 
+import com.framework.tool.oauth.oauth.ClientDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 @Configuration
 @EnableAuthorizationServer
 public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
 
 
-    @Autowired(required = false)
-    private AuthenticationManager authenticationManager;
-
     @Autowired
-    private ClientDetailsService clientDetailsService;
+    private ClientDetailsServiceImpl clientDetailsService;
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        super.configure(security);
+        security.tokenKeyAccess("permitAll()")
+                .checkTokenAccess("permitAll()")
+                .allowFormAuthenticationForClients();
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        super.configure(clients);
-        clients.withClientDetails(clientDetailsService);
+        clients
+                // 使用in‐memory存储
+                .inMemory()
+                // client_id
+                .withClient("c1")
+                //客户端密钥
+                .secret("secret")
+                //客户端访问的资源列表
+                .authorizedGrantTypes("authorization_code", "password", "client_credentials", "implicit", "refresh_token")
+                // 允许的授权范围
+                .scopes("all")
+                //false 允许跳转到授权页面
+                .autoApprove(false)
+                //加上验证回调地址
+                .redirectUris("http://www.baidu.com");
     }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        /*endpoints.tokenStore(new JwtTokenStore(new CustomerTokenEnhancer()))
-                .authenticationManager(authenticationManager)
-                .userDetailsService(new CustomerUserDetailsManager());*/
-        super.configure(endpoints);
-
+        endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
 
     }
 }

@@ -1,4 +1,4 @@
-package com.framework.tool.oauth.config;
+package com.framework.tool.oauth.oauth;
 
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
-//@Component
+@Component
 public class ClientDetailsServiceImpl implements ClientDetailsService {
     @Override
     public ClientDetails loadClientByClientId(String s) throws ClientRegistrationException {

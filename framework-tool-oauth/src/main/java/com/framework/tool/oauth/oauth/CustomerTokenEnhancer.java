@@ -1,4 +1,4 @@
-package com.framework.tool.oauth.config;
+package com.framework.tool.oauth.oauth;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
