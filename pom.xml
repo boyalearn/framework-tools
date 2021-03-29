@@ -25,6 +25,7 @@
         <module>framework-tool-database</module>
         <module>framework-tool-http-client</module>
         <module>framework-tool-unit-test</module>
+        <module>framework-tool-job-task</module>
     </modules>
 
 
