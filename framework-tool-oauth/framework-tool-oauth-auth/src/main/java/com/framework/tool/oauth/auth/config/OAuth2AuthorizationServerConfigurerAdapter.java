@@ -1,5 +1,6 @@
 package com.framework.tool.oauth.auth.config;
 
+import com.framework.tool.oauth.auth.oauth.JsonWebTokenAccessConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 import java.util.Arrays;
 
@@ -36,14 +38,14 @@ public class OAuth2AuthorizationServerConfigurerAdapter extends AuthorizationSer
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired(required = false)
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private TokenStore tokenStore;
 
-    @Autowired(required = false)
-    private AccessTokenConverter accessTokenConverter;
+    @Autowired
+    private JsonWebTokenAccessConverter accessTokenConverter;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -78,10 +80,14 @@ public class OAuth2AuthorizationServerConfigurerAdapter extends AuthorizationSer
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        tokenEnhancerChain.setTokenEnhancers(
+                Arrays.asList(new JwtAccessTokenConverter(), accessTokenConverter));
         endpoints.authenticationManager(authenticationManager)
                 .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST)
                 .tokenStore(tokenStore)
-                .accessTokenConverter(accessTokenConverter)
+                .tokenEnhancer(tokenEnhancerChain)
                 .userDetailsService(userDetailsService);
         endpoints.pathMapping("/customer/oauth/authorize","/oauth/authorize");
     }

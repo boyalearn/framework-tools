@@ -1,6 +1,5 @@
 package com.framework.tool.oauth.auth.oauth;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -26,13 +25,6 @@ public class CustomerTokenEnhancer implements TokenEnhancer {
         }
         //additionalInfo 中设置业务信息 如userId等
         additionalInfo.put("license", license);
-        Authentication auth = authentication.getUserAuthentication();
-        if (auth != null) {
-            CustomerUserDetails user = (CustomerUserDetails) auth.getPrincipal();
-            if (user != null) {
-                additionalInfo.put("password", user.getPassword());
-            }
-        }
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
         return accessToken;
     }
