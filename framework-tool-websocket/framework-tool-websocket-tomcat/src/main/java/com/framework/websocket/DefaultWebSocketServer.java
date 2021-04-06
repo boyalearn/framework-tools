@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.framework.websocket.annotation.CmdName;
 import com.framework.websocket.annotation.EndpointPath;
 import com.framework.websocket.context.ChannelContext;
+import com.framework.websocket.context.SessionContext;
 import com.framework.websocket.exception.ConnectionException;
 import com.framework.websocket.handler.CommandHandler;
 import com.framework.websocket.handler.CommandParser;
 import com.framework.websocket.handler.ConnectionHandler;
 import com.framework.websocket.handler.ErrorHandler;
+import com.framework.websocket.handler.HeartbeatHandler;
 import com.framework.websocket.session.DefaultSessionManager;
 import com.framework.websocket.session.SessionManager;
 import com.framework.websocket.utils.JsonUtils;
@@ -33,9 +35,15 @@ import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DefaultWebSocketServer implements ApplicationContextAware, InitializingBean {
+
+    private final static String PING = "ping";
 
     public static SessionManager sessionManager = new DefaultSessionManager();
 
@@ -47,8 +55,16 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
 
     private static CommandParser commandParser;
 
+    private static ScheduledExecutorService HEART_POOL = Executors.newScheduledThreadPool(10);
+
+    private HeartbeatHandler heartbeatHandler;
 
     private ErrorHandler errorHandler;
+
+    private SessionContext sessionContext;
+
+    private ScheduledFuture<?> scheduledFuture;
+
 
     public DefaultWebSocketServer() {
         try {
@@ -67,9 +83,13 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
         channelContext.setResponse((HandshakeResponse) config.getUserProperties().get(HandshakeResponse.class.getName()));
         channelContext.setEndpointConfig(config);
         channelContext.setSession(session);
+        this.sessionContext = new SessionContext(session);
+        heartbeatHandler = new HeartbeatHandler(sessionContext);
+        this.scheduledFuture = HEART_POOL.scheduleWithFixedDelay(heartbeatHandler, 2, 2, TimeUnit.SECONDS);
         try {
             this.connectionHandler.onOpen(channelContext);
             sessionManager.addSession(session);
+            log.debug("one connection on open , session id is {}", session.getId());
         } catch (ConnectionException e) {
             throw new ConnectionException();
         }
@@ -78,28 +98,38 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        this.connectionHandler.onClose(session, closeReason);
+        log.debug("connection {} is close", session.getId());
+        this.scheduledFuture.cancel(true);
+        this.connectionHandler.onClose(sessionContext, closeReason);
         this.sessionManager.removeSession(session);
     }
 
     @OnMessage
     public void onMessage(Session session, String message) throws Exception {
-        log.info("收到来自窗口:{}", message);
+        log.debug("收到消息:{}", message);
         String cmd = "";
         try {
             cmd = commandParser.parse(JsonUtils.jsonToMessage(message));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Json Processing Exception");
         }
+
+        if (PING.equals(cmd)) {
+            heartbeatHandler.handler();
+            return;
+        }
+
         CommandHandler handler = commandMap.get(cmd);
         if (null == handler) {
-            throw new RuntimeException("no cmd handler");
+            log.error("no cmd handler");
+            return;
         }
         handler.handle(session, message);
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
+        log.debug("on error happen", error);
         errorHandler.handlingException(session, error);
     }
 

@@ -1,8 +1,8 @@
-package com.framework.websocket.utils;
+package com.framework.tool.websocket.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.framework.websocket.message.Message;
+import com.framework.tool.websocket.message.Message;
 
 public class JsonUtils {
 
