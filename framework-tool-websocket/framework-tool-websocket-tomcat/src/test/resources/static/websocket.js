@@ -1,44 +1,72 @@
-var WebSocketClient = function () {
-    this.ws;
-    this.url;
-    this.timer;
-}
-
-WebSocketClient.prototype.init = function (url) {
-    this.url = url;
-    var _this = this;
-    if (!"WebSocket" in window) {
-        alert("您的浏览器不支持 WebSocket!");
+function WebSocketClient() {
+    this.enable = false;
+    this.ws = null;
+    this.url = null;
+    this.connectionTimer = null;
+    this.heartInterval = 2000;
+    this.reconnectInterval = 2000;
+    this.connectListener = function () {
+        console.log("connection start work")
     }
-    this.ws = new WebSocket(url);
 
-    this.ws.onopen = function () {
-        console.log("connect success")
-        _this.timer = setInterval(function () {
+    this.closeListener = function () {
+        console.log("date of connection stop work")
+    }
+
+    this.heartFunction = function () {
+        var _this = this;
+        _this.connectionTimer = setInterval(function () {
             _this.send("{\"command\":\"ping\"}")
-        }, 2000)
-    };
+        }, _this.heartInterval)
+    }
 
-    this.ws.onmessage = function (evt) {
-        var message = eval('(' + evt.data + ')');
-        console.log(message)
-        if ("ping" == message.command) {
-            _this.send("{\"command\":\"pong\"}")
+    this.init = function (url) {
+        this.url = url;
+    }
+    this.connect = function () {
+        var _this = this;
+        if (!"WebSocket" in window) {
+            console.log("您的浏览器不支持WebSocket!");
         }
-    };
 
-    this.ws.onclose = function () {
-        console.log("onclose")
-        clearInterval(_this.timer)
-        _this.reconnect(_this);
-    };
-}
-WebSocketClient.prototype.send = function (msg) {
-    this.ws.send(msg);
-}
-WebSocketClient.prototype.reconnect = function (context) {
-    console.log("re connect...")
-    setTimeout(function () {
-        context.init(context.url);
-    }, 2000)
+        this.ws = new WebSocket(_this.url);
+
+        this.ws.onopen = function () {
+            _this.enable = true;
+            console.log("connect success");
+            _this.connectListener();
+            _this.heartFunction()
+        };
+
+        this.ws.onmessage = function (evt) {
+            var message = eval('(' + evt.data + ')');
+            console.log(message)
+            if ("ping" == message.command) {
+                _this.send("{\"command\":\"pong\"}")
+            }
+        };
+
+        this.ws.onerror = function (evt) {
+            console.log(evt)
+        }
+
+        this.ws.onclose = function () {
+            if (_this.enable) {
+                _this.enable = false;
+                console.log("onclose")
+                clearInterval(_this.connectionTimer)
+                _this.closeListener();
+            }
+            _this.reconnect(_this);
+        };
+    }
+    this.send = function (msg) {
+        this.ws.send(msg);
+    }
+    this.reconnect = function (client) {
+        console.log("re connect...")
+        setTimeout(function () {
+            client.connect();
+        }, client.reconnectInterval)
+    }
 }
