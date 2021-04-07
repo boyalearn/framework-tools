@@ -56,6 +56,7 @@ public class WebSocketClient {
 
     @OnMessage
     public void onMessage(String message) throws IOException {
+        System.out.println("Client onMessage: " + message);
         if (PING.equals(JsonUtils.jsonToMessage(message).getCommand())) {
             heartbeatHandler.handler();
             return;
@@ -65,7 +66,7 @@ public class WebSocketClient {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("Client onMessage: " + message);
+
     }
 
     @OnError
@@ -99,27 +100,30 @@ public class WebSocketClient {
 
     public WebSocketClient(String url) {
         this.url = url;
-        WebSocketContainer container = null;
-        try {
-            container = ContainerProvider.getWebSocketContainer();
-            URI uri = URI.create(this.url);
-            container.connectToServer(WebSocketClient.class, uri);
-        } catch (DeploymentException | IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void reConnect() {
-        log.error("re connect ...");
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             URI uri = URI.create(this.url);
             container.connectToServer(WebSocketClient.class, uri);
         } catch (DeploymentException | IOException e) {
-            while (!shutdown) {
-                sleep(3 * 1000);
-                reConnect();
-            }
+            log.error("connection exception", e);
+        }
+    }
+
+    public void reConnect() {
+        while (!shutdown && !connect()) {
+            sleep(2 * 1000);
+        }
+    }
+
+    private boolean connect() {
+        log.error("re connect ...");
+        try {
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            URI uri = URI.create(this.url);
+            container.connectToServer(WebSocketClient.class, uri);
+            return true;
+        } catch (DeploymentException | IOException e) {
+            return false;
         }
     }
 

@@ -45,6 +45,8 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
 
     private final static String PING = "ping";
 
+    private final static String PONG = "pong";
+
     public static SessionManager sessionManager = new DefaultSessionManager();
 
     private static ApplicationContext applicationContext;
@@ -114,8 +116,8 @@ public class DefaultWebSocketServer implements ApplicationContextAware, Initiali
             throw new RuntimeException("Json Processing Exception");
         }
 
-        if (PING.equals(cmd)) {
-            heartbeatHandler.handler();
+        if (PING.equals(cmd) || PONG.equals(cmd)) {
+            heartbeatHandler.handler(cmd);
             return;
         }
 

@@ -14,6 +14,8 @@ public class HeartbeatHandler implements Runnable {
 
     private final static Message<String> PING_DATA = new Message<>();
 
+    private int pingCount = 0;
+
     static {
         PONG_DATA.setCommand("pong");
         PING_DATA.setCommand("ping");
@@ -25,12 +27,19 @@ public class HeartbeatHandler implements Runnable {
         this.sessionContext = sessionContext;
     }
 
-    public void handler() throws IOException {
-        sessionContext.sendMessage(JsonUtils.messageToJson(PONG_DATA));
+    public void handler(String cmd) throws IOException {
+        if (PING_DATA.getCommand().equals(cmd)) {
+            sessionContext.sendMessage(JsonUtils.messageToJson(PONG_DATA));
+        } else {
+            pingCount--;
+        }
     }
 
     @Override
     public void run() {
+
+        log.debug("ping count is {}", pingCount);
+
         log.debug("one heart beat send...");
         int time = 3;
         while (time >= 0 && !sendPingData()) {
@@ -53,6 +62,7 @@ public class HeartbeatHandler implements Runnable {
     private boolean sendPingData() {
         try {
             sessionContext.sendMessage(JsonUtils.messageToJson(PING_DATA));
+            pingCount++;
             return true;
         } catch (IOException e) {
             log.debug("send ping error.", e);
