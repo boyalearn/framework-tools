@@ -17,6 +17,7 @@
         <module>framework-tool-websocket-tomcat</module>
         <module>framework-tool-websocket-spring-boot</module>
         <module>framework-tool-websocket-client</module>
+        <module>framework-tool-websocket-core</module>
     </modules>
     <dependencies>
         <!--SpringMvc支持-->
