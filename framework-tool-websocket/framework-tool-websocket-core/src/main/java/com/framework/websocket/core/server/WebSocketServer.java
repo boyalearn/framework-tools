@@ -1,43 +1,34 @@
 package com.framework.websocket.core.server;
 
-import com.framework.websocket.core.acceptor.Acceptor;
-import com.framework.websocket.core.monitor.ConnectionMonitor;
-import lombok.extern.slf4j.Slf4j;
+import com.framework.websocket.core.acceptor.DefaultAcceptor;
+import com.framework.websocket.core.context.ServerContext;
+import com.framework.websocket.core.event.DefaultEventPublisher;
+import com.framework.websocket.core.event.EventPublisher;
+import com.framework.websocket.core.listener.EventListener;
+import com.framework.websocket.core.listener.HeartbeatListener;
+import com.framework.websocket.core.listener.MessageReceiveListener;
+import com.framework.websocket.core.protocol.MessageProtocol;
+import com.framework.websocket.core.protocol.Protocol;
 
-import javax.websocket.CloseReason;
-import javax.websocket.EndpointConfig;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-@Slf4j
 public class WebSocketServer {
 
-    private static Acceptor acceptor;
+    private EventPublisher publisher = new DefaultEventPublisher();
 
-    private ConnectionMonitor connectionMonitor;
+    private Protocol protocol = new MessageProtocol();
 
-    @OnOpen
-    public void onOpen(Session session, EndpointConfig config) {
-        log.debug("session id {} connect...", session.getId());
-        connectionMonitor.monitor(session);
+    private List<EventListener> listeners;
+
+
+    public void start() {
+        this.listeners = new ArrayList<>();
+        this.listeners.add(new HeartbeatListener());
+        this.listeners.add(new MessageReceiveListener(new DefaultAcceptor(this.protocol, new HashMap<>())));
+        publisher.setListeners(this.listeners);
+        ServerContext.setEventPublisher(publisher);
     }
 
-
-    @OnMessage
-    public void onMessage(Session session, String message) throws Exception {
-        acceptor.doAccept(session, message);
-    }
-
-    @OnError
-    public void onError(Session session, Throwable error) {
-        log.debug("session id {} on error...", session.getId(), error);
-    }
-
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
-        log.debug("session id {} close...", session.getId());
-    }
 }

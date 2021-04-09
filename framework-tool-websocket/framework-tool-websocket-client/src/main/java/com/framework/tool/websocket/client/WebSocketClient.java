@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 @ClientEndpoint
 public class WebSocketClient {
 
-    private String url = "ws://localhost:8080/ws";
+    private static String URL;
 
     private HeartbeatHandler heartbeatHandler;
 
@@ -58,7 +58,11 @@ public class WebSocketClient {
     public void onMessage(String message) throws IOException {
         System.out.println("Client onMessage: " + message);
         if (PING.equals(JsonUtils.jsonToMessage(message).getCommand())) {
-            heartbeatHandler.handler();
+            try {
+                heartbeatHandler.handler();
+            } catch (Exception e) {
+                log.error("heartbeatHandler exception");
+            }
             return;
         }
         try {
@@ -71,9 +75,7 @@ public class WebSocketClient {
 
     @OnError
     public void onError(Session session, Throwable error) {
-        System.out.println("on error happen ");
-        error.printStackTrace();
-        System.out.println(session);
+        log.error("on error happen ", error);
     }
 
     @OnClose
@@ -99,10 +101,10 @@ public class WebSocketClient {
 
 
     public WebSocketClient(String url) {
-        this.url = url;
+        URL = url;
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            URI uri = URI.create(this.url);
+            URI uri = URI.create(URL);
             container.connectToServer(WebSocketClient.class, uri);
         } catch (DeploymentException | IOException e) {
             log.error("connection exception", e);
@@ -119,7 +121,7 @@ public class WebSocketClient {
         log.error("re connect ...");
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            URI uri = URI.create(this.url);
+            URI uri = URI.create(URL);
             container.connectToServer(WebSocketClient.class, uri);
             return true;
         } catch (DeploymentException | IOException e) {

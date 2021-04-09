@@ -6,6 +6,7 @@ import com.framework.websocket.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class HeartbeatHandler implements Runnable {
@@ -14,7 +15,9 @@ public class HeartbeatHandler implements Runnable {
 
     private final static Message<String> PING_DATA = new Message<>();
 
-    private int pingCount = 0;
+    private int time = 3;
+
+    private AtomicInteger pingCount = new AtomicInteger(0);
 
     static {
         PONG_DATA.setCommand("pong");
@@ -31,24 +34,20 @@ public class HeartbeatHandler implements Runnable {
         if (PING_DATA.getCommand().equals(cmd)) {
             sessionContext.sendMessage(JsonUtils.messageToJson(PONG_DATA));
         } else {
-            pingCount--;
+            pingCount.decrementAndGet();
         }
     }
 
     @Override
     public void run() {
-
         log.debug("ping count is {}", pingCount);
-
-        log.debug("one heart beat send...");
-        int time = 3;
-        while (time >= 0 && !sendPingData()) {
-            time--;
-            sleep(3 * 1000);
-        }
-        if (time < 0) {
+        if (pingCount.get() > time) {
+            log.debug("server actively close the connection,because client not responding in time");
             close();
         }
+        log.debug("one heart beat send...");
+        sendPingData();
+
     }
 
     private void close() {
@@ -62,7 +61,7 @@ public class HeartbeatHandler implements Runnable {
     private boolean sendPingData() {
         try {
             sessionContext.sendMessage(JsonUtils.messageToJson(PING_DATA));
-            pingCount++;
+            pingCount.incrementAndGet();
             return true;
         } catch (IOException e) {
             log.debug("send ping error.", e);

@@ -1,6 +1,6 @@
 package com.framework.websocket.core.thread;
 
-import com.framework.websocket.core.handlers.Handler;
+import com.framework.websocket.core.handler.Handler;
 
 import java.util.Map;
 

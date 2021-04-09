@@ -1,8 +1,8 @@
 package com.framework.websocket.core.acceptor;
 
-import javax.websocket.Session;
+import com.framework.websocket.core.context.ChannelContext;
 
 public interface Acceptor {
 
-    void doAccept(Session session, String message);
+    void doAccept(ChannelContext channelContext);
 }

@@ -32,13 +32,10 @@ public class HeartbeatHandler implements Runnable {
     @Override
     public void run() {
         log.debug("one heart beat send...");
-        int time = 3;
-        while (time >= 0 && !sendPingData()) {
-            time--;
-            sleep(3 * 1000);
-        }
-        if (time < 0) {
-            close();
+        try {
+            sendPingData();
+        }catch (Exception e){
+            log.debug("send ping error");
         }
     }
 
