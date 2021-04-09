@@ -27,11 +27,16 @@ public class HeartbeatListener<Event> implements EventListener<Event> {
     public void onEvent(Event event) {
         if (event instanceof ConnectionEvent) {
             ChannelContext channelContext = ((ConnectionEvent) event).getChannelContext();
+            Session session = ((DefaultChannelContext) channelContext).getSession();
+            System.out.println(session.hashCode());
+
             startHeartBeat(channelContext);
         }
 
         if (event instanceof CloseEvent) {
             ChannelContext channelContext = ((CloseEvent) event).getChannelContext();
+            Session session = ((DefaultChannelContext) channelContext).getSession();
+            System.out.println(session.hashCode());
             stopHeartBeat(channelContext);
         }
     }
