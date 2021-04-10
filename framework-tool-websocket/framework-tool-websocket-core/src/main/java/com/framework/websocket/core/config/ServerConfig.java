@@ -14,20 +14,16 @@ import com.framework.websocket.core.protocol.Protocol;
 import com.framework.websocket.core.reactor.DefaultReactor;
 import com.framework.websocket.core.reactor.Reactor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 public class ServerConfig {
 
     private EventPublisher publisher;
 
     private Protocol protocol;
-
-    private List<EventListener> listeners;
 
     private Acceptor acceptor;
 
@@ -35,23 +31,20 @@ public class ServerConfig {
 
     private List<Handler> handlers = new ArrayList<>();
 
-
     private Builder builder;
 
 
     public ServerConfig(Builder builder) {
         this.builder = builder;
-        parserConfig(builder);
     }
 
-    public void parserConfig(Builder builder) {
-        this.builder = builder;
+
+    public void parserConfig() {
         buildProtocol();
         buildReactor();
         buildAcceptor();
         buildPublisher();
         addListenerToPublisher();
-        ServerContext.setEventPublisher(this.publisher);
     }
 
     private void buildReactor() {

@@ -1,5 +1,6 @@
 package com.framework.websocket.core.reactor;
 
+import com.framework.websocket.core.context.ChannelContext;
 import com.framework.websocket.core.handler.Handler;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface Reactor {
 
     void addHandlers(List<Handler> handlers);
 
-    void dispatch(String context);
+    void dispatch(String cmd, ChannelContext context);
 }

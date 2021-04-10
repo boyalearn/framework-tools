@@ -8,9 +8,7 @@ import com.framework.websocket.core.event.ConnectionEvent;
 import com.framework.websocket.core.event.ErrorEvent;
 import com.framework.websocket.core.event.EventPublisher;
 import com.framework.websocket.core.event.MessageEvent;
-import com.framework.websocket.core.server.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
-
 import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
@@ -18,18 +16,28 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public abstract class AbstractWebSocketServerEndpoint {
 
+    protected static Map<Class<?>, EventPublisher> publisherCenter = new ConcurrentHashMap<>();
+
     private EventPublisher publisher;
 
     public AbstractWebSocketServerEndpoint() {
-        this.publisher = ServerContext.getEventPublisher();
+        this.publisher = publisherCenter.get(this.getClass());
+        if (null == this.publisher) {
+            log.debug("start default config");
+            new ServerConfig.Builder().build();
+            this.publisher = ServerContext.getEventPublisher();
+        }
     }
 
-    public AbstractWebSocketServerEndpoint(ServerConfig serverConfig) {
-        new WebSocketServer(serverConfig);
+    public AbstractWebSocketServerEndpoint(EventPublisher publisher) {
+        publisherCenter.put(this.getClass(), publisher);
+        this.publisher = publisher;
     }
 
     @OnOpen

@@ -19,6 +19,7 @@
         <module>framework-tool-websocket-client</module>
         <module>framework-tool-websocket-core</module>
         <module>framework-tool-websocket-demo</module>
+        <module>framework-tool-websocket-spring</module>
     </modules>
     <dependencies>
         <!--SpringMvc支持-->

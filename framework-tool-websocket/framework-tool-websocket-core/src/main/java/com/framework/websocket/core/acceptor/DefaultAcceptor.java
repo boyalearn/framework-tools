@@ -3,7 +3,6 @@ package com.framework.websocket.core.acceptor;
 import com.framework.websocket.core.context.ChannelContext;
 import com.framework.websocket.core.context.DefaultChannelContext;
 import com.framework.websocket.core.exception.MessageProtocolException;
-import com.framework.websocket.core.handler.Handler;
 import com.framework.websocket.core.message.Message;
 import com.framework.websocket.core.protocol.Protocol;
 import com.framework.websocket.core.reactor.Reactor;
@@ -59,6 +58,6 @@ public class DefaultAcceptor implements Acceptor {
         if (PONG.equals(message.getCmd())) {
             log.info("accept pong");
         }
-        EXECUTOR.execute(new Worker(this.reactor, ((DefaultChannelContext) channelContext).getMessage()));
+        EXECUTOR.execute(new Worker(this.reactor, message.getCmd(), channelContext));
     }
 }
