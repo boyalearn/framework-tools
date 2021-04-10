@@ -11,5 +11,5 @@ public interface EventPublisher {
 
     void publish(Event e);
 
-    void setListeners(List<EventListener> listeners);
+    void addListeners(List<EventListener> listeners);
 }

@@ -1,22 +1,20 @@
 package com.framework.websocket.core.thread;
 
-import com.framework.websocket.core.handler.Handler;
-
-import java.util.Map;
+import com.framework.websocket.core.reactor.Reactor;
 
 public class Worker implements Runnable {
 
-    private Map<String, Handler> dispatch;
+    private Reactor reactor;
 
     private String context;
 
-    public Worker(Map<String, Handler> dispatch, String context) {
-        this.dispatch = dispatch;
+    public Worker(Reactor reactor, String context) {
+        this.reactor = reactor;
         this.context = context;
     }
 
     @Override
     public void run() {
-        this.dispatch.get(context);
+        reactor.dispatch(context);
     }
 }

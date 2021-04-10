@@ -1,6 +1,5 @@
 package com.framework.websocket.core;
 
-import com.framework.websocket.core.server.WebSocketServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -9,14 +8,14 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+
         SpringApplication.run(Application.class, args);
     }
 
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
-        WebSocketServer webSocketServer = new WebSocketServer();
-        webSocketServer.start();
         return new ServerEndpointExporter();
+
     }
 }

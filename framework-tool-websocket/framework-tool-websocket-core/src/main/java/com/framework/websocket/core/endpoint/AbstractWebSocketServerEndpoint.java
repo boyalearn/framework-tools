@@ -1,5 +1,6 @@
-package com.framework.websocket.core.server;
+package com.framework.websocket.core.endpoint;
 
+import com.framework.websocket.core.config.ServerConfig;
 import com.framework.websocket.core.context.DefaultChannelContext;
 import com.framework.websocket.core.context.ServerContext;
 import com.framework.websocket.core.event.CloseEvent;
@@ -7,6 +8,7 @@ import com.framework.websocket.core.event.ConnectionEvent;
 import com.framework.websocket.core.event.ErrorEvent;
 import com.framework.websocket.core.event.EventPublisher;
 import com.framework.websocket.core.event.MessageEvent;
+import com.framework.websocket.core.server.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.websocket.CloseReason;
@@ -18,12 +20,16 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
 @Slf4j
-public class WebSocketServerEndpoint {
+public abstract class AbstractWebSocketServerEndpoint {
 
     private EventPublisher publisher;
 
-    public WebSocketServerEndpoint() {
+    public AbstractWebSocketServerEndpoint() {
         this.publisher = ServerContext.getEventPublisher();
+    }
+
+    public AbstractWebSocketServerEndpoint(ServerConfig serverConfig) {
+        new WebSocketServer(serverConfig);
     }
 
     @OnOpen

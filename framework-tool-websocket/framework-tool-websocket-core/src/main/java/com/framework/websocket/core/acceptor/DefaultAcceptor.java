@@ -6,13 +6,13 @@ import com.framework.websocket.core.exception.MessageProtocolException;
 import com.framework.websocket.core.handler.Handler;
 import com.framework.websocket.core.message.Message;
 import com.framework.websocket.core.protocol.Protocol;
+import com.framework.websocket.core.reactor.Reactor;
 import com.framework.websocket.core.thread.NamedThreadFactory;
 import com.framework.websocket.core.thread.Worker;
 import com.framework.websocket.core.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -28,13 +28,13 @@ public class DefaultAcceptor implements Acceptor {
             4, 8, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5000),
             new NamedThreadFactory("websocket-reactor-pool-"), new ThreadPoolExecutor.AbortPolicy());
 
-    private Map<String, Handler> dispatch;
+    private Reactor reactor;
 
     private Protocol protocol;
 
-    public DefaultAcceptor(Protocol protocol, Map<String, Handler> dispatch) {
+    public DefaultAcceptor(Protocol protocol, Reactor reactor) {
         this.protocol = protocol;
-        this.dispatch = dispatch;
+        this.reactor = reactor;
     }
 
     @Override
@@ -59,6 +59,6 @@ public class DefaultAcceptor implements Acceptor {
         if (PONG.equals(message.getCmd())) {
             log.info("accept pong");
         }
-        EXECUTOR.execute(new Worker(dispatch, ((DefaultChannelContext) channelContext).getMessage()));
+        EXECUTOR.execute(new Worker(this.reactor, ((DefaultChannelContext) channelContext).getMessage()));
     }
 }

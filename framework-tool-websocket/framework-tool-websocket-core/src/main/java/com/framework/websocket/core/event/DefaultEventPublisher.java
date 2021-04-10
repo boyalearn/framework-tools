@@ -17,14 +17,10 @@ public class DefaultEventPublisher implements EventPublisher {
     }
 
     @Override
-    public void setListeners(List<EventListener> listeners) {
+    public void addListeners(List<EventListener> listeners) {
         if (null != this.listeners) {
             this.listeners.addAll(listeners);
         }
         this.listeners = listeners;
-    }
-
-    public void addEventListener(EventListener<Event> listener) {
-        this.listeners.add(listener);
     }
 }
