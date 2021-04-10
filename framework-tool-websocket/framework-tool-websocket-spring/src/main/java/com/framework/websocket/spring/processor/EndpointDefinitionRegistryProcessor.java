@@ -12,20 +12,13 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 
 public class EndpointDefinitionRegistryProcessor implements BeanDefinitionRegistryPostProcessor {
 
-
     private EndpointCreator endpointCreator = new EndpointCreator();
-
-    public EndpointDefinitionRegistryProcessor() {
-    }
-
-    public EndpointDefinitionRegistryProcessor(EndpointCreator endpointCreator) {
-        this.endpointCreator = endpointCreator;
-    }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
 
         try {
+
             Class<AbstractWebSocketServerEndpoint> endpoint = endpointCreator.createEndpoint("/wss");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(endpoint);
             beanDefinitionRegistry.registerBeanDefinition(endpoint.getName(), beanDefinition);
