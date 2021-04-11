@@ -15,7 +15,7 @@ public class EndpointCreator {
     public Class<AbstractWebSocketServerEndpoint> createEndpoint(String path) throws NotFoundException, CannotCompileException {
 
         ClassPool cp = ClassPool.getDefault();
-        CtClass ctClass = cp.makeClass("com.framework.websocket.core.endpoint.PathWebSocketServerEndpoint");
+        CtClass ctClass = cp.makeClass("com.framework.websocket.core.endpoint.Dynamic"+path.replaceAll("/","")+"WebSocketServerEndpoint");
         CtClass superClass = cp.getCtClass(AbstractWebSocketServerEndpoint.class.getName());
         ctClass.setSuperclass(superClass);
 

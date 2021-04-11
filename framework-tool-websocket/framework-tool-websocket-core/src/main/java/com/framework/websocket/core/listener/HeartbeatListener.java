@@ -27,30 +27,26 @@ public class HeartbeatListener<Event> implements EventListener<Event> {
     public void onEvent(Event event) {
         if (event instanceof ConnectionEvent) {
             ChannelContext channelContext = ((ConnectionEvent) event).getChannelContext();
-            Session session = ((DefaultChannelContext) channelContext).getSession();
-            System.out.println(session.hashCode());
 
             startHeartBeat(channelContext);
         }
 
         if (event instanceof CloseEvent) {
             ChannelContext channelContext = ((CloseEvent) event).getChannelContext();
-            Session session = ((DefaultChannelContext) channelContext).getSession();
-            System.out.println(session.hashCode());
             stopHeartBeat(channelContext);
         }
     }
 
     public void startHeartBeat(ChannelContext channelContext) {
         DefaultChannelContext context = (DefaultChannelContext) channelContext;
-        Session session = context.getSession();
+        Session session = context.getEndpoint().getSession();
         ScheduledFuture<?> future = HEART_POOL.scheduleWithFixedDelay(new HeartbeatWorker(context), this.delay, this.delay, TimeUnit.SECONDS);
         runnableMap.put(session, future);
     }
 
     public void stopHeartBeat(ChannelContext channelContext) {
         DefaultChannelContext context = (DefaultChannelContext) channelContext;
-        Session session = context.getSession();
+        Session session = context.getEndpoint().getSession();
         Future future = runnableMap.get(session);
         if (null != future) {
             future.cancel(true);

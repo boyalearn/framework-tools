@@ -1,7 +1,10 @@
 package com.framework.websocket.core.context;
 
+import com.framework.websocket.core.endpoint.WebSocketServerEndpoint;
 import com.framework.websocket.core.message.Message;
-import com.framework.websocket.core.util.JsonUtil;
+import com.framework.websocket.core.message.SimpleMessage;
+import com.framework.websocket.core.protocol.Protocol;
+import com.framework.websocket.core.protocol.SimpleProtocol;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
-import java.io.IOException;
 
 @Getter
 @Setter
 @Slf4j
 public class DefaultChannelContext implements ChannelContext {
 
-    private Session session;
+    private WebSocketServerEndpoint endpoint;
 
     private String message;
 
@@ -24,47 +26,55 @@ public class DefaultChannelContext implements ChannelContext {
 
     private CloseReason closeReason;
 
+    private Protocol<SimpleMessage> protocol = new SimpleProtocol();
+
     private EndpointConfig config;
 
-    public DefaultChannelContext(Session session, Throwable exception) {
-        this.session = session;
+    public DefaultChannelContext(WebSocketServerEndpoint endpoint, Throwable exception) {
+        this.endpoint = endpoint;
         this.exception = exception;
     }
 
-    public DefaultChannelContext(Session session, EndpointConfig config) {
-        this.session = session;
+    public DefaultChannelContext(WebSocketServerEndpoint endpoint, EndpointConfig config) {
+        this.endpoint = endpoint;
         this.config = config;
     }
 
-    public DefaultChannelContext(Session session, String message) {
-        this.session = session;
+    public DefaultChannelContext(WebSocketServerEndpoint endpoint, String message) {
+        this.endpoint = endpoint;
         this.message = message;
     }
 
-    public DefaultChannelContext(Session session, CloseReason closeReason) {
-        this.session = session;
+    public DefaultChannelContext(WebSocketServerEndpoint endpoint, CloseReason closeReason) {
+        this.endpoint = endpoint;
         this.closeReason = closeReason;
     }
 
     @Override
-    public void sendMessage(Message message) {
-        synchronized (this.session) {
+    public boolean sendSyncMessage(String message) {
+        synchronized (this.endpoint.getSession()) {
+            long start = System.currentTimeMillis();
             try {
-                this.session.getBasicRemote().sendText(JsonUtil.toJson(message));
-            } catch (IOException e) {
-                log.error("send message exception");
+                int sendId = this.endpoint.sendId().getAndIncrement();
+                this.endpoint.getSession().getBasicRemote().sendText(protocol.addProtocolHeader(message, sendId));
+                protocol.wait(sendId, this.endpoint.getSession());
+            } catch (Exception e) {
+                log.error("send message exception. spend {} ms", System.currentTimeMillis() - start, e);
+                return false;
             }
+        }
+        return true;
+    }
+
+    @Override
+    public void sendAsyncMessage(String message) {
+        synchronized (this.endpoint.getSession()) {
+            this.endpoint.getSession().getAsyncRemote().sendText(message);
         }
     }
 
     @Override
-    public void sendMessage(String message) {
-        synchronized (this.session) {
-            try {
-                this.session.getBasicRemote().sendText(message);
-            } catch (IOException e) {
-                log.error("send message exception");
-            }
-        }
+    public void sendMessage(Message message) {
+
     }
 }

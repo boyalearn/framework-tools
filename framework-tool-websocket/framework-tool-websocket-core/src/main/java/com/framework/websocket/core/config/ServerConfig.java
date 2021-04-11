@@ -2,14 +2,13 @@ package com.framework.websocket.core.config;
 
 import com.framework.websocket.core.acceptor.Acceptor;
 import com.framework.websocket.core.acceptor.DefaultAcceptor;
-import com.framework.websocket.core.context.ServerContext;
 import com.framework.websocket.core.event.DefaultEventPublisher;
 import com.framework.websocket.core.event.EventPublisher;
 import com.framework.websocket.core.handler.Handler;
 import com.framework.websocket.core.listener.EventListener;
 import com.framework.websocket.core.listener.HeartbeatListener;
 import com.framework.websocket.core.listener.MessageReceiveListener;
-import com.framework.websocket.core.protocol.MessageProtocol;
+import com.framework.websocket.core.protocol.SimpleProtocol;
 import com.framework.websocket.core.protocol.Protocol;
 import com.framework.websocket.core.reactor.DefaultReactor;
 import com.framework.websocket.core.reactor.Reactor;
@@ -58,7 +57,7 @@ public class ServerConfig {
 
     private void buildProtocol() {
         if (null == this.builder.getProtocol()) {
-            this.protocol = new MessageProtocol();
+            this.protocol = new SimpleProtocol();
         } else {
             this.protocol = this.builder.getProtocol();
         }

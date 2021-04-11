@@ -2,7 +2,7 @@ package com.framework.websocket.core.context;
 
 import com.framework.websocket.core.event.EventPublisher;
 
-public class ServerContext {
+public class PublishHolder {
     private static EventPublisher PUBLISHER;
 
     public static EventPublisher getEventPublisher() {

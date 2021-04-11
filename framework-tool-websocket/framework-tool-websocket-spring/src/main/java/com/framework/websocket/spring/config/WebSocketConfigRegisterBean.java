@@ -1,8 +1,10 @@
 package com.framework.websocket.spring.config;
 
 import com.framework.websocket.core.config.ServerConfig;
-import com.framework.websocket.core.context.ServerContext;
+import com.framework.websocket.core.context.PublishHolder;
 import com.framework.websocket.core.handler.Handler;
+import com.framework.websocket.core.reactor.DefaultReactor;
+import com.framework.websocket.core.reactor.Reactor;
 import com.framework.websocket.spring.annonation.Command;
 import com.framework.websocket.spring.annonation.WebSocketController;
 import com.framework.websocket.spring.handler.HandlerInvoker;
@@ -25,7 +27,7 @@ public class WebSocketConfigRegisterBean implements InitializingBean, Applicatio
 
         String[] webSocketControllerNames = applicationContext.getBeanNamesForAnnotation(WebSocketController.class);
 
-        List<Handler> handlerList=new ArrayList<>();
+        List<Handler> handlerList = new ArrayList<>();
 
         for (String webSocketControllerName : webSocketControllerNames) {
             Object bean = applicationContext.getBean(webSocketControllerName);
@@ -33,15 +35,20 @@ public class WebSocketConfigRegisterBean implements InitializingBean, Applicatio
             for (Method method : methods) {
                 Command command = method.getAnnotation(Command.class);
                 if (null != command) {
-                    HandlerInvoker handlerInvoker=new HandlerInvoker(bean,method,method.getParameterTypes(),command.value());
+                    HandlerInvoker handlerInvoker = new HandlerInvoker(bean, method, method.getParameterTypes(), command.value());
                     handlerList.add(handlerInvoker);
                 }
             }
         }
 
-        ServerConfig serverConfig = new ServerConfig.Builder().handlers(handlerList).build();
+        Reactor reactor = applicationContext.getBean(Reactor.class);
+        if (null == reactor) {
+            reactor = new DefaultReactor();
+        }
+
+        ServerConfig serverConfig = new ServerConfig.Builder().reactor(reactor).handlers(handlerList).build();
         serverConfig.parserConfig();
-        ServerContext.setEventPublisher(serverConfig.getPublisher());
+        PublishHolder.setEventPublisher(serverConfig.getPublisher());
     }
 
     @Override

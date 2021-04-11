@@ -1,7 +1,7 @@
 package com.framework.websocket.spring.server;
 
 import com.framework.websocket.spring.config.WebSocketConfigRegisterBean;
-import com.framework.websocket.spring.exporter.WebSocketEndpointExporter;
+import com.framework.websocket.core.exporter.WebSocketEndpointExporter;
 import com.framework.websocket.spring.processor.EndpointDefinitionRegistryProcessor;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;

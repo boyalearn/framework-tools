@@ -1,4 +1,4 @@
-package com.framework.websocket.spring.exporter;
+package com.framework.websocket.core.exporter;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.SmartInitializingSingleton;

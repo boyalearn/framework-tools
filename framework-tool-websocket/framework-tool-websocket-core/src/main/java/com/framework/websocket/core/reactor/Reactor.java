@@ -11,5 +11,5 @@ public interface Reactor {
 
     void addHandlers(List<Handler> handlers);
 
-    void dispatch(String cmd, ChannelContext context);
+    void dispatch(String message, ChannelContext context);
 }

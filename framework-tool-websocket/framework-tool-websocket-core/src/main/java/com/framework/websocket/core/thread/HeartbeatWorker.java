@@ -1,16 +1,16 @@
 package com.framework.websocket.core.thread;
 
 import com.framework.websocket.core.context.ChannelContext;
-import com.framework.websocket.core.message.Message;
+import com.framework.websocket.core.message.SimpleMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class HeartbeatWorker implements Runnable {
 
 
-    private final static Message PONG_DATA = new Message();
+    private final static SimpleMessage PONG_DATA = new SimpleMessage();
 
-    private final static Message PING_DATA = new Message();
+    private final static SimpleMessage PING_DATA = new SimpleMessage();
 
     static {
         PONG_DATA.setCmd("pong");
@@ -27,5 +27,6 @@ public class HeartbeatWorker implements Runnable {
     @Override
     public void run() {
         channelContext.sendMessage(PING_DATA);
+        log.debug("success is {}", channelContext.sendSyncMessage("1"));
     }
 }

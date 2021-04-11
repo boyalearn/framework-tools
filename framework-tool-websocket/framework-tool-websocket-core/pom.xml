@@ -20,31 +20,5 @@
             <artifactId>javassist</artifactId>
             <version>3.24.0-GA</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <version>2.4.4</version>
-        </dependency>
     </dependencies>
-
-    <build>
-        <!-- 定义打包成jar的名字 -->
-        <!-- 这里如果不定义 , 打包成的jar名字格式为 : <artifactId> + <version> -->
-        <finalName>websocket-server</finalName>
-        <plugins>
-            <!--SpringBoot maven插件-->
-            <!-- 可以将应用打成一个可执行的jar包 -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.4.4</version>
-                <!-- 设置启动入口 -->
-                <!-- manClass即使不配置 , SprinBoot也在打包的时候也清楚入口是哪个 , 其实不用配置 -->
-                <!--<configuration>
-                    <mainClass>com.framework.websocket.server.Application</mainClass>
-                </configuration>-->
-            </plugin>
-        </plugins>
-    </build>
 </project>

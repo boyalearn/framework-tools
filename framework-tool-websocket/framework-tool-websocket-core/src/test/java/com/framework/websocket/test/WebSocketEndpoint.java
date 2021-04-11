@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.websocket.server.ServerEndpoint;
 
 @Component
-@ServerEndpoint(value = "/ws", configurator = HttpConfigurator.class)
+@ServerEndpoint(value = "/wss", configurator = HttpConfigurator.class)
 public class WebSocketEndpoint extends AbstractWebSocketServerEndpoint {
 
 }
