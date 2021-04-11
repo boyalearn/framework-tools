@@ -6,7 +6,6 @@ import com.framework.websocket.core.context.ChannelContext;
 import com.framework.websocket.core.exception.MessageProtocolException;
 import com.framework.websocket.core.message.SimpleMessage;
 import org.springframework.util.StringUtils;
-
 import javax.websocket.Session;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -87,9 +86,19 @@ public class SimpleProtocol implements Protocol<SimpleMessage> {
     @Override
     public void wait(int sendId, Session session) throws InterruptedException {
         session.wait();
-        while (messageIdSet.get(session).contains(sendId)) {
-            messageIdSet.get(session).remove(sendId);
-            return;
+        while (!messageIdSet.get(session).contains(sendId)) {
+            session.wait();
         }
+        messageIdSet.get(session).remove(sendId);
+    }
+
+    @Override
+    public void wait(int sendId, Session session, long timeOut) throws InterruptedException {
+        long time = System.currentTimeMillis();
+        session.wait(timeOut);
+        while (!messageIdSet.get(session).contains(sendId) && System.currentTimeMillis() - time < timeOut) {
+            session.wait(timeOut + time - System.currentTimeMillis());
+        }
+        messageIdSet.get(session).remove(sendId);
     }
 }

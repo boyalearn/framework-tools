@@ -34,7 +34,6 @@ public class EndpointDefinitionRegistryProcessor implements BeanDefinitionRegist
                     continue;
                 }
                 WebSocketController webSocketController = beanClass.getAnnotation(WebSocketController.class);
-
                 if (null != webSocketController) {
                     registerBeanDefinition(beanDefinitionRegistry, webSocketController.value());
                 }
@@ -51,13 +50,11 @@ public class EndpointDefinitionRegistryProcessor implements BeanDefinitionRegist
                     continue;
                 }
                 WebSocketController webSocketController = beanClass.getAnnotation(WebSocketController.class);
-
                 if (null != webSocketController) {
                     registerBeanDefinition(beanDefinitionRegistry, webSocketController.value());
                 }
                 continue;
             }
-
 
         }
 
@@ -69,18 +66,15 @@ public class EndpointDefinitionRegistryProcessor implements BeanDefinitionRegist
             RootBeanDefinition beanDefinition = new RootBeanDefinition(endpoint);
             beanDefinitionRegistry.registerBeanDefinition(endpoint.getName(), beanDefinition);
         } catch (NotFoundException e) {
-            e.printStackTrace();
+            log.error("not find class exception",e);
         } catch (CannotCompileException e) {
-            e.printStackTrace();
+            log.error("cannot compile exception",e);
+
         }
     }
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-        String[] beanDefinitionNames = configurableListableBeanFactory.getBeanDefinitionNames();
-        for (String beanDefinitionName : beanDefinitionNames) {
-            System.out.println(beanDefinitionName);
-        }
-
+        return ;
     }
 }

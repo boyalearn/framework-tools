@@ -51,7 +51,15 @@ public interface Protocol<E> {
      *
      * @param session
      */
-    void wait(int sendId,Session session) throws InterruptedException;
+    void wait(int sendId, Session session) throws InterruptedException;
+
+
+    /**
+     * 让持有该Session的线程等待带超时时间
+     *
+     * @param session
+     */
+    void wait(int sendId, Session session, long timeOut) throws InterruptedException;
 
 
     /**

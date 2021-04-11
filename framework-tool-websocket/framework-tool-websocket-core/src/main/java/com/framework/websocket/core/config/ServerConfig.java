@@ -2,141 +2,219 @@ package com.framework.websocket.core.config;
 
 import com.framework.websocket.core.acceptor.Acceptor;
 import com.framework.websocket.core.acceptor.DefaultAcceptor;
+import com.framework.websocket.core.annonation.SocketEndpointPath;
 import com.framework.websocket.core.event.DefaultEventPublisher;
 import com.framework.websocket.core.event.EventPublisher;
 import com.framework.websocket.core.handler.Handler;
 import com.framework.websocket.core.listener.EventListener;
 import com.framework.websocket.core.listener.HeartbeatListener;
 import com.framework.websocket.core.listener.MessageReceiveListener;
-import com.framework.websocket.core.protocol.SimpleProtocol;
 import com.framework.websocket.core.protocol.Protocol;
+import com.framework.websocket.core.protocol.SimpleProtocol;
 import com.framework.websocket.core.reactor.DefaultReactor;
 import com.framework.websocket.core.reactor.Reactor;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
 @Getter
+@Slf4j
 public class ServerConfig {
 
-    private EventPublisher publisher;
+    private List<Protocol> protocols = new ArrayList<>();
 
-    private Protocol protocol;
+    private List<Acceptor> acceptors = new ArrayList<>();
 
-    private Acceptor acceptor;
-
-    private Reactor reactor;
+    private List<Reactor> reactors = new ArrayList<>();
 
     private List<Handler> handlers = new ArrayList<>();
 
-    private Builder builder;
+    private List<EventListener> eventListeners = new ArrayList<>();
 
+    private List<EventPublisher> eventPublishers = new ArrayList<>();
 
-    public ServerConfig(Builder builder) {
-        this.builder = builder;
+    public void addReactor(Reactor reactor) {
+        this.reactors.add(reactor);
     }
 
-
-    public void parserConfig() {
-        buildProtocol();
-        buildReactor();
-        buildAcceptor();
-        buildPublisher();
-        addListenerToPublisher();
+    public void addHandlers(List<Handler> handlers) {
+        this.handlers.addAll(handlers);
     }
 
-    private void buildReactor() {
-        if (null == this.builder.getReactor()) {
-            this.reactor = new DefaultReactor();
-        } else {
-            this.reactor = this.builder.getReactor();
-        }
-        this.reactor.addHandlers(this.builder.getHandlers());
+    public EventPublisher buildPublisherForEndpoint(Class<?> endpointClass) {
+        ServerEndpoint serverEndpoint = endpointClass.getAnnotation(ServerEndpoint.class);
+        String endpointPath = serverEndpoint.value();
+        List<Handler> handlerList = findHandlers(endpointPath);
+        Protocol protocol = findProtocol(endpointPath);
+        Reactor reactor = findReactor(endpointPath);
+        reactor.addHandlers(handlerList);
+        Acceptor acceptor = findAcceptor(endpointPath);
+        acceptor.setProtocol(protocol);
+        acceptor.setReactor(reactor);
+        List<EventListener> eventListenerList = findEventListener(endpointPath, acceptor);
+        EventPublisher publisher = findPublisher(endpointPath);
+        publisher.addListeners(eventListenerList);
+        return publisher;
     }
 
-    private void buildProtocol() {
-        if (null == this.builder.getProtocol()) {
-            this.protocol = new SimpleProtocol();
-        } else {
-            this.protocol = this.builder.getProtocol();
+    private EventPublisher findPublisher(String endpointPath) {
+        List<EventPublisher> eventPublisherList = new ArrayList<>();
+
+        for (EventPublisher eventPublisher : this.eventPublishers) {
+            SocketEndpointPath annotation = eventPublisher.getClass().getAnnotation(SocketEndpointPath.class);
+            if (annotation != null && annotation.value().equals(endpointPath)) {
+                eventPublisherList.add(eventPublisher);
+            }
         }
+        if (1 == eventPublisherList.size()) {
+            return eventPublisherList.get(0);
+        }
+
+        if (eventPublisherList.size() > 1) {
+            throw new RuntimeException("EventPublisher it's not unique!");
+        }
+
+        for (EventPublisher eventPublisher : this.eventPublishers) {
+            SocketEndpointPath annotation = eventPublisher.getClass().getAnnotation(SocketEndpointPath.class);
+            if (null == annotation) {
+                eventPublisherList.add(eventPublisher);
+            }
+        }
+        if (1 == eventPublisherList.size()) {
+            return eventPublisherList.get(0);
+        }
+        if (eventPublisherList.size() > 1) {
+            throw new RuntimeException("EventPublisher it's not unique!");
+        }
+        return new DefaultEventPublisher();
     }
 
-    private void buildAcceptor() {
-        if (null == this.builder.getAcceptor()) {
-            this.acceptor = new DefaultAcceptor(this.protocol, this.reactor);
-        } else {
-            this.acceptor = this.builder.getAcceptor();
-        }
+    private List<EventListener> findEventListener(String endpointPath, Acceptor acceptor) {
+        List<EventListener> eventListenerList = new ArrayList<>();
+        this.eventListeners.forEach(h -> {
+            SocketEndpointPath annotation = h.getClass().getAnnotation(SocketEndpointPath.class);
+            if (annotation == null || annotation.value().equals(endpointPath)) {
+                eventListenerList.add(h);
+            }
+        });
+        eventListenerList.add(new HeartbeatListener());
+        eventListenerList.add(new MessageReceiveListener(acceptor));
+        return eventListenerList;
     }
 
-    private void buildPublisher() {
-        if (null == this.builder.getPublisher()) {
-            this.publisher = new DefaultEventPublisher();
-        } else {
-            this.publisher = this.builder.getPublisher();
+    private Acceptor findAcceptor(String endpointPath) {
+
+        List<Acceptor> acceptorList = new ArrayList<>();
+
+        for (Acceptor acceptor : this.acceptors) {
+            SocketEndpointPath annotation = acceptor.getClass().getAnnotation(SocketEndpointPath.class);
+            if (annotation != null && annotation.value().equals(endpointPath)) {
+                acceptorList.add(acceptor);
+            }
         }
+        if (1 == acceptorList.size()) {
+            return acceptorList.get(0);
+        }
+
+        if (acceptorList.size() > 1) {
+            throw new RuntimeException("Acceptor it's not unique!");
+        }
+
+        for (Acceptor acceptor : this.acceptors) {
+            SocketEndpointPath annotation = acceptor.getClass().getAnnotation(SocketEndpointPath.class);
+            if (null == annotation) {
+                acceptorList.add(acceptor);
+            }
+        }
+        if (1 == acceptorList.size()) {
+            return acceptorList.get(0);
+        }
+        if (acceptorList.size() > 1) {
+            throw new RuntimeException("Acceptor it's not unique!");
+        }
+        log.debug("use default DefaultAcceptor..");
+        return new DefaultAcceptor();
     }
 
-    private void addListenerToPublisher() {
-        List<EventListener> defaultListeners = new ArrayList<>();
-        defaultListeners.add(new HeartbeatListener());
-        defaultListeners.add(new MessageReceiveListener(this.acceptor));
-        this.publisher.addListeners(defaultListeners);
-        if (null != builder.getListeners()) {
-            this.publisher.addListeners(builder.getListeners());
+    private Reactor findReactor(String endpointPath) {
+
+        List<Reactor> reactorList = new ArrayList<>();
+
+        for (Reactor reactor : this.reactors) {
+            SocketEndpointPath annotation = reactor.getClass().getAnnotation(SocketEndpointPath.class);
+            if (annotation != null && annotation.value().equals(endpointPath)) {
+                reactorList.add(reactor);
+            }
         }
+        if (1 == reactorList.size()) {
+            return reactorList.get(0);
+        }
+
+        if (reactorList.size() > 1) {
+            throw new RuntimeException("Reactor it's not unique!");
+        }
+
+        for (Reactor reactor : this.reactors) {
+            SocketEndpointPath annotation = reactor.getClass().getAnnotation(SocketEndpointPath.class);
+            if (null == annotation) {
+                reactorList.add(reactor);
+            }
+        }
+        if (1 == reactorList.size()) {
+            return reactorList.get(0);
+        }
+        if (reactorList.size() > 1) {
+            throw new RuntimeException("Reactor it's not unique!");
+        }
+        log.debug("use default Reactor..");
+        return new DefaultReactor();
     }
 
+    private List<Handler> findHandlers(String endpointPath) {
+        List<Handler> handlerList = new ArrayList<>();
+        this.handlers.forEach(h -> {
+            SocketEndpointPath annotation = h.getClass().getAnnotation(SocketEndpointPath.class);
+            if (annotation == null || annotation.value().equals(endpointPath)) {
+                handlerList.add(h);
+            }
+        });
+        return handlerList;
+    }
 
-    @Getter
-    public static class Builder {
-        private EventPublisher publisher;
-
-        private Acceptor acceptor;
-
-        private Reactor reactor;
-
-        private Protocol protocol;
-
-        private List<EventListener> listeners;
-
-        private List<Handler> handlers = new ArrayList<>();
-
-        public ServerConfig build() {
-            return new ServerConfig(this);
+    private Protocol findProtocol(String endpointPath) {
+        List<Protocol> protocolList = new ArrayList<>();
+        for (Protocol protocol : this.protocols) {
+            SocketEndpointPath annotation = protocol.getClass().getAnnotation(SocketEndpointPath.class);
+            if (null != annotation && annotation.value().equals(endpointPath)) {
+                protocolList.add(protocol);
+            }
+        }
+        if (1 == protocolList.size()) {
+            return protocolList.get(0);
         }
 
-
-        public Builder publisher(EventPublisher publisher) {
-            this.publisher = publisher;
-            return this;
+        if (protocolList.size() > 1) {
+            throw new RuntimeException("Protocol it's not unique!");
         }
 
-        public Builder acceptor(Acceptor acceptor) {
-            this.acceptor = acceptor;
-            return this;
+        for (Protocol protocol : this.protocols) {
+            SocketEndpointPath annotation = protocol.getClass().getAnnotation(SocketEndpointPath.class);
+            if (null == annotation) {
+                protocolList.add(protocol);
+            }
         }
-
-        public Builder reactor(Reactor reactor) {
-            this.reactor = reactor;
-            return this;
+        if (1 == protocolList.size()) {
+            return protocolList.get(0);
         }
-
-        public Builder protocol(Protocol protocol) {
-            this.protocol = protocol;
-            return this;
+        if (protocolList.size() > 1) {
+            throw new RuntimeException("Protocol it's not unique!");
         }
-
-        public Builder handlers(List<Handler> handlers) {
-            this.handlers = handlers;
-            return this;
-        }
-
-        public Builder listeners(List<EventListener> listeners) {
-            this.listeners = listeners;
-            return this;
-        }
+        log.debug("use default simple protocol..");
+        return new SimpleProtocol();
     }
 }

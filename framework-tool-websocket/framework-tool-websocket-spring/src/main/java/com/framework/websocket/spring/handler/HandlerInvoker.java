@@ -1,12 +1,14 @@
 package com.framework.websocket.spring.handler;
 
 import com.framework.websocket.core.context.ChannelContext;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @Slf4j
+@Setter
 public class HandlerInvoker implements CommandHandler {
 
     private Object object;
@@ -16,6 +18,10 @@ public class HandlerInvoker implements CommandHandler {
     private Class<?>[] argTypes;
 
     private String cmd;
+
+    public HandlerInvoker() {
+
+    }
 
     public HandlerInvoker(Object object, Method method, Class<?>[] argTypes, String cmd) {
         this.object = object;

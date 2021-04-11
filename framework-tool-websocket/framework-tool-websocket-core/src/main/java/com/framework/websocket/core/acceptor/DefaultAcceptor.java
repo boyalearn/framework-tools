@@ -8,6 +8,7 @@ import com.framework.websocket.core.protocol.Protocol;
 import com.framework.websocket.core.reactor.Reactor;
 import com.framework.websocket.core.thread.NamedThreadFactory;
 import com.framework.websocket.core.thread.Worker;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -25,9 +26,17 @@ public class DefaultAcceptor implements Acceptor {
 
     private Protocol<Message> protocol;
 
-    public DefaultAcceptor(Protocol protocol, Reactor reactor) {
-        this.protocol = protocol;
+    public DefaultAcceptor() {
+    }
+
+    @Override
+    public void setReactor(Reactor reactor) {
         this.reactor = reactor;
+    }
+
+    @Override
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
     }
 
     @Override
