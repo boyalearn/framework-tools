@@ -2,8 +2,10 @@ package com.framework.websocket.spring.handler;
 
 import com.framework.websocket.core.annonation.SocketEndpointPath;
 import javassist.CannotCompileException;
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ConstPool;
@@ -14,6 +16,10 @@ public class HandlerCreator {
 
     public Class<HandlerInvoker> modifyHandlerInvoker(String path) throws NotFoundException, CannotCompileException {
         ClassPool classPool = ClassPool.getDefault();
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        LoaderClassPath classLoaderPath=new LoaderClassPath(classLoader);
+        classPool.appendClassPath(classLoaderPath);
+
         CtClass ctClass = classPool.makeClass("com.framework.websocket.spring.handler.CommandHandlerInvoker");
         CtClass superClass = classPool.getCtClass(HandlerInvoker.class.getName());
         ctClass.setSuperclass(superClass);

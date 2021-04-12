@@ -3,6 +3,7 @@ package com.framework.websocket.core.endpoint;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
@@ -15,6 +16,9 @@ public class EndpointCreator {
     public Class<AbstractWebSocketServerEndpoint> createEndpoint(String path) throws NotFoundException, CannotCompileException {
 
         ClassPool cp = ClassPool.getDefault();
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        LoaderClassPath classLoaderPath=new LoaderClassPath(classLoader);
+        cp.appendClassPath(classLoaderPath);
         CtClass ctClass = cp.makeClass("com.framework.websocket.core.endpoint.Dynamic"+path.replaceAll("/","")+"WebSocketServerEndpoint");
         CtClass superClass = cp.getCtClass(AbstractWebSocketServerEndpoint.class.getName());
         ctClass.setSuperclass(superClass);

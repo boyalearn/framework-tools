@@ -24,6 +24,8 @@ public class SimpleFTPUtil {
     }
 
 
+
+
     public static void sendFile() throws IOException {
         FTPClient ftpClient = new FTPClient();
         ftpClient.setControlEncoding("UTF-8");
