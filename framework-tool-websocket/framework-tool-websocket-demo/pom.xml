@@ -22,8 +22,53 @@
             <artifactId>framework-tool-websocket-tomcat</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.broheim</groupId>
+            <artifactId>broheim-websocket-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.broheim</groupId>
+            <artifactId>broheim-websocket-spring-boot</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>github1</id>
+            <name>boyalearn1</name>
+            <!--
+            1. https://raw.github.com => 固定写法, 若编译的时候一直连接不上(Connection reset)，可将https改成http并反复重试，如果还是连接不上的话，大家都懂的，国外的网站嘛，多连接(编译)几次就可以了
+            2. AvengerEug => github登录的用户名
+            3. maven-repository => 存储发布的jar仓库
+            4. master => 从哪个分支中拿jar包
+            -->
+            <url>https://raw.github.com/boyalearn/broheim-repository/master</url>
+        </repository>
+        <repository>
+            <id>github2</id>
+            <name>boyalearn2</name>
+            <!--
+            1. https://raw.github.com => 固定写法, 若编译的时候一直连接不上(Connection reset)，可将https改成http并反复重试，如果还是连接不上的话，大家都懂的，国外的网站嘛，多连接(编译)几次就可以了
+            2. AvengerEug => github登录的用户名
+            3. maven-repository => 存储发布的jar仓库
+            4. master => 从哪个分支中拿jar包
+            -->
+            <url>https://raw.github.com/boyalearn/broheim-repository/core</url>
+        </repository>
+        <repository>
+            <id>github3</id>
+            <name>boyalearn3</name>
+            <!--
+            1. https://raw.github.com => 固定写法, 若编译的时候一直连接不上(Connection reset)，可将https改成http并反复重试，如果还是连接不上的话，大家都懂的，国外的网站嘛，多连接(编译)几次就可以了
+            2. AvengerEug => github登录的用户名
+            3. maven-repository => 存储发布的jar仓库
+            4. master => 从哪个分支中拿jar包
+            -->
+            <url>https://raw.github.com/boyalearn/broheim-repository/spring-boot</url>
+        </repository>
+    </repositories>
     <build>
         <!-- 定义打包成jar的名字 -->
         <!-- 这里如果不定义 , 打包成的jar名字格式为 : <artifactId> + <version> -->
