@@ -1,7 +1,10 @@
 package com.framework.tool.oauth.auth.config;
 
+import com.framework.tool.oauth.auth.oauth.CustomerTokenConverter;
+import com.framework.tool.oauth.auth.oauth.CustomerTokenEnhancer;
 import com.framework.tool.oauth.auth.oauth.JsonWebTokenAccessConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +20,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 import java.util.Arrays;
 
@@ -45,7 +49,10 @@ public class OAuth2AuthorizationServerConfigurerAdapter extends AuthorizationSer
     private TokenStore tokenStore;
 
     @Autowired
-    private JsonWebTokenAccessConverter accessTokenConverter;
+    private TokenEnhancer tokenEnhancer;
+
+    @Autowired
+    private AccessTokenConverter accessTokenConverter;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -81,13 +88,11 @@ public class OAuth2AuthorizationServerConfigurerAdapter extends AuthorizationSer
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(
-                Arrays.asList(new JwtAccessTokenConverter(), accessTokenConverter));
         endpoints.authenticationManager(authenticationManager)
                 .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST)
                 .tokenStore(tokenStore)
-                .tokenEnhancer(tokenEnhancerChain)
+                .tokenEnhancer(tokenEnhancer)
+                .accessTokenConverter(accessTokenConverter)
                 .userDetailsService(userDetailsService);
         endpoints.pathMapping("/customer/oauth/authorize","/oauth/authorize");
     }
