@@ -14,6 +14,7 @@
     <modules>
         <module>framework-tool-oauth-auth</module>
         <module>framework-tool-oauth-resource-server</module>
+        <module>framework-tool-security</module>
     </modules>
 
     <dependencies>
