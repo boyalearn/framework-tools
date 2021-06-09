@@ -16,6 +16,7 @@
     <modules>
         <module>database-tools-flyway</module>
         <module>database-tools-mybatis-plus</module>
+        <module>framework-tool-mybatis-extends</module>
     </modules>
 
     <properties>

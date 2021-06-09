@@ -17,7 +17,6 @@
     <modules>
         <module>framework-tool-jackson-extends</module>
         <module>framework-tool-webmvc-extends</module>
-        <module>framework-tool-mybatis-extends</module>
         <module>framework-tool-common</module>
         <module>framework-tool-elasticsearch</module>
         <module>framework-tool-oauth</module>
