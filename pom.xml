@@ -27,6 +27,8 @@
         <module>framework-tool-job-task</module>
         <module>framework-tool-ftp</module>
         <module>framework-tool-cvs</module>
+        <module>framework-tool-swagger</module>
+        <module>framework-tool-spring-processor</module>
     </modules>
 
 
